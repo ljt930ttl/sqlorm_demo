@@ -7,7 +7,7 @@
 # @Software: tools-gzpw
 # @File    : aiodb.py
 # @Function:
-
+import time
 import aiomysql
 from pymysql.err import MySQLError
 import asyncio
@@ -36,7 +36,7 @@ class Pmysql:
         host = kwargs.get('host', 'localhost')
         port = kwargs.get('port', 3306)
         user = kwargs['user']
-        password = kwargs['password']
+        password = kwargs['passwd']
         db = kwargs.get('db')
         charset = kwargs.get('charset', 'utf8')
         self.autocommit = autocommit = kwargs.get('autocommit', True)
@@ -92,15 +92,32 @@ class Pmysql:
             return affected
 
 
-async def create_engine(loop,**kwargs):
+async def create_engine(loop, **kwargs):
     _engine = Pmysql()
-    _engine.pool = await _engine.initpool(loop, **kwargs)
+    _engine.pool = await _engine.initpool(loop, **Config)
     return _engine
 
 
-
+Config = {
+    'host': '127.0.0.1',
+    'port': 3306,
+    'user': 'root',
+    'passwd': '123456',
+    'db': 'gzpw_psm70',
+    'charset': 'utf8'
+}
+start = time.time()
+def tic():
+    return 'at %1.3f seconds' % (time.time()-start)
 
 
 if __name__ == '__main__':
-    pass
-
+    loop = asyncio.get_event_loop()
+    engine = loop.run_until_complete(create_engine(loop,**Config))
+    print('start',tic())
+    tasks = [
+        engine.select('select * from t_device'),
+    engine.select('select * from t_device')]
+    loop.run_until_complete(asyncio.gather(*tasks))
+    # print(res)
+    print('end', tic())
